@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Prediqt — Data-driven market intelligence",
   description: "AI-powered stock prediction dashboard. Signal over noise.",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
