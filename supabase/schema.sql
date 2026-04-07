@@ -56,3 +56,45 @@ insert into stocks (ticker, name) values
   ('AMZN', 'Amazon.com Inc.'),
   ('META', 'Meta Platforms Inc.')
 on conflict (ticker) do nothing;
+
+-- ── Paper Trading ──────────────────────────────────────────────
+create table if not exists paper_wallet (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz default now(),
+  started_at timestamptz default now(),
+  initial_balance float not null default 10000,
+  cash_balance float not null default 10000,
+  experiment_days int not null default 10,
+  is_active boolean not null default true
+);
+
+create table if not exists paper_trades (
+  id uuid primary key default gen_random_uuid(),
+  wallet_id uuid not null references paper_wallet(id) on delete cascade,
+  stock_id uuid not null references stocks(id),
+  direction text not null check (direction in ('long', 'short')) default 'long',
+  status text not null check (status in ('open', 'closed')) default 'open',
+  opened_at timestamptz not null default now(),
+  entry_price float not null,
+  shares float not null,
+  cost_basis float not null,
+  entry_confidence float not null,
+  entry_prediction text not null check (entry_prediction in ('up', 'down')),
+  closed_at timestamptz,
+  exit_price float,
+  proceeds float,
+  pnl float,
+  pnl_pct float,
+  close_reason text
+);
+
+create table if not exists paper_snapshots (
+  id uuid primary key default gen_random_uuid(),
+  wallet_id uuid not null references paper_wallet(id) on delete cascade,
+  snapshot_date date not null,
+  portfolio_value float not null,
+  cash_balance float not null,
+  realized_pnl float not null default 0,
+  unrealized_pnl float not null default 0,
+  unique(wallet_id, snapshot_date)
+);
