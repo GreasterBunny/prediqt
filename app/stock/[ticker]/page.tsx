@@ -1,12 +1,15 @@
 import { notFound } from "next/navigation";
 import { getStockByTicker } from "@/services/stocks";
 import { runPrediction } from "@/services/predictions";
+import { computeAccuracy } from "@/services/accuracy";
 import { isSupabaseConfigured } from "@/lib/supabaseClient";
 import Header from "@/components/Header";
 import PredictionCard from "@/components/PredictionCard";
 import PredictionSignals from "@/components/PredictionSignals";
 import IndicatorPanel from "@/components/IndicatorPanel";
 import PredictionHistoryTable from "@/components/PredictionHistoryTable";
+import AccuracyStats from "@/components/AccuracyStats";
+import AccuracyChart from "@/components/AccuracyChart";
 import ChartComponent from "@/components/ChartComponent";
 
 interface StockPageProps {
@@ -23,8 +26,8 @@ export default async function StockPage({ params }: StockPageProps) {
 
   const { stock, latestPrice, prediction, indicators, priceHistory, predictionHistory } = data;
 
-  // Always run the engine to get fresh signals
   const engineResult = runPrediction(priceHistory);
+  const accuracy = computeAccuracy(predictionHistory);
 
   const prevClose = priceHistory[priceHistory.length - 2]?.close ?? latestPrice.open;
   const change = latestPrice.close - prevClose;
@@ -67,7 +70,7 @@ export default async function StockPage({ params }: StockPageProps) {
           </div>
         </div>
 
-        {/* Chart */}
+        {/* Price chart */}
         <ChartComponent prices={priceHistory} ticker={stock.ticker} />
 
         {/* Prediction + Indicators */}
@@ -76,8 +79,14 @@ export default async function StockPage({ params }: StockPageProps) {
           <IndicatorPanel indicators={indicators} currentPrice={latestPrice.close} />
         </div>
 
-        {/* Signal breakdown — full width */}
+        {/* Signal breakdown */}
         <PredictionSignals signals={engineResult.signals} />
+
+        {/* Accuracy stats */}
+        <AccuracyStats metrics={accuracy} />
+
+        {/* Accuracy chart */}
+        <AccuracyChart data={accuracy.dailyAccuracy} />
 
         {/* OHLCV */}
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 backdrop-blur-sm">
@@ -99,7 +108,7 @@ export default async function StockPage({ params }: StockPageProps) {
           </div>
         </div>
 
-        {/* Prediction history */}
+        {/* Prediction history table */}
         <PredictionHistoryTable history={predictionHistory} />
 
         <p className="pb-4 text-center text-xs text-zinc-700">
