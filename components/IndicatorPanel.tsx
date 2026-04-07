@@ -5,77 +5,51 @@ interface IndicatorPanelProps {
   currentPrice: number;
 }
 
-function rsiLabel(rsi: number) {
-  if (rsi >= 70) return { label: "Overbought", color: "text-red-400" };
-  if (rsi <= 30) return { label: "Oversold", color: "text-emerald-400" };
-  return { label: "Neutral", color: "text-zinc-400" };
+function signal(condition: "up" | "down" | "neutral") {
+  const map = {
+    up:      { label: "Bullish", color: "text-[var(--green)]", bg: "bg-[var(--green-dim)]" },
+    down:    { label: "Bearish", color: "text-[var(--red)]",   bg: "bg-[var(--red-dim)]"   },
+    neutral: { label: "Neutral", color: "text-[var(--text-2)]", bg: "bg-[var(--bg-raised)]" },
+  };
+  return map[condition];
 }
 
-function macdLabel(macd: number) {
-  if (macd > 0) return { label: "Bullish", color: "text-emerald-400" };
-  return { label: "Bearish", color: "text-red-400" };
-}
-
-function smaLabel(price: number, sma: number) {
-  if (price > sma) return { label: "Above", color: "text-emerald-400" };
-  return { label: "Below", color: "text-red-400" };
-}
-
-interface IndicatorRowProps {
-  label: string;
+interface RowProps {
+  name: string;
   value: string;
-  signal: string;
-  signalColor: string;
+  direction: "up" | "down" | "neutral";
 }
 
-function IndicatorRow({ label, value, signal, signalColor }: IndicatorRowProps) {
+function Row({ name, value, direction }: RowProps) {
+  const sig = signal(direction);
   return (
-    <div className="flex items-center justify-between py-3 border-b border-zinc-800 last:border-0">
-      <span className="text-sm text-zinc-400">{label}</span>
-      <div className="flex items-center gap-3">
-        <span className="text-sm font-medium text-white">{value}</span>
-        <span className={`text-xs font-medium ${signalColor}`}>{signal}</span>
+    <div className="flex items-center justify-between py-3 border-b border-[var(--border)] last:border-0">
+      <span className="text-sm text-[var(--text-2)]">{name}</span>
+      <div className="flex items-center gap-2.5">
+        <span className="num text-sm font-medium text-white">{value}</span>
+        <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${sig.bg} ${sig.color}`}>
+          {sig.label}
+        </span>
       </div>
     </div>
   );
 }
 
 export default function IndicatorPanel({ indicators, currentPrice }: IndicatorPanelProps) {
-  const rsi = rsiLabel(indicators.rsi);
-  const macd = macdLabel(indicators.macd);
-  const sma50 = smaLabel(currentPrice, indicators.sma_50);
-  const sma200 = smaLabel(currentPrice, indicators.sma_200);
+  const rsiDir = indicators.rsi >= 70 ? "down" : indicators.rsi <= 30 ? "up" : "neutral";
+  const macdDir = indicators.macd > 0 ? "up" : "down";
+  const sma50Dir = currentPrice > indicators.sma_50 ? "up" : "down";
+  const sma200Dir = currentPrice > indicators.sma_200 ? "up" : "down";
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 backdrop-blur-sm">
-      <p className="mb-1 text-xs font-medium uppercase tracking-widest text-zinc-500">
+    <div className="card p-5" style={{ background: "var(--bg-card)" }}>
+      <p className="text-[11px] font-medium text-[var(--text-3)] tracking-wide mb-1">
         Technical Indicators
       </p>
-
-      <IndicatorRow
-        label="RSI (14)"
-        value={indicators.rsi.toFixed(1)}
-        signal={rsi.label}
-        signalColor={rsi.color}
-      />
-      <IndicatorRow
-        label="MACD"
-        value={indicators.macd.toFixed(2)}
-        signal={macd.label}
-        signalColor={macd.color}
-      />
-      <IndicatorRow
-        label="SMA 50"
-        value={`$${indicators.sma_50.toFixed(2)}`}
-        signal={sma50.label}
-        signalColor={sma50.color}
-      />
-      <IndicatorRow
-        label="SMA 200"
-        value={`$${indicators.sma_200.toFixed(2)}`}
-        signal={sma200.label}
-        signalColor={sma200.color}
-      />
+      <Row name="RSI (14)" value={indicators.rsi.toFixed(1)} direction={rsiDir} />
+      <Row name="MACD" value={indicators.macd.toFixed(3)} direction={macdDir} />
+      <Row name="SMA 50" value={`$${indicators.sma_50.toFixed(2)}`} direction={sma50Dir} />
+      <Row name="SMA 200" value={`$${indicators.sma_200.toFixed(2)}`} direction={sma200Dir} />
     </div>
   );
 }

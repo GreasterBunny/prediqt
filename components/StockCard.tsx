@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { StockWithData } from "@/types";
-import ConfidenceMeter from "./ConfidenceMeter";
+import Sparkline from "./Sparkline";
 
 interface StockCardProps {
   data: StockWithData;
@@ -15,50 +15,58 @@ export default function StockCard({ data }: StockCardProps) {
   const isPositive = change >= 0;
   const isUp = prediction.prediction === "up";
 
+  // Last 30 closes for sparkline
+  const sparkPrices = priceHistory.slice(-30).map((p) => p.close);
+
   return (
-    <Link href={`/stock/${stock.ticker.toLowerCase()}`}>
-      <div className="group relative rounded-xl border border-zinc-800 bg-zinc-900/60 p-5 backdrop-blur-sm transition-all duration-200 hover:border-zinc-700 hover:bg-zinc-900 cursor-pointer">
-        {/* Header */}
-        <div className="mb-4 flex items-start justify-between">
+    <Link href={`/stock/${stock.ticker.toLowerCase()}`} className="block group">
+      <div
+        className="card cursor-pointer p-5 hover:bg-[var(--bg-raised)]"
+        style={{ background: "var(--bg-card)" }}
+      >
+        {/* Top row: ticker + prediction badge */}
+        <div className="flex items-start justify-between mb-3">
           <div>
-            <p className="text-xs font-medium text-zinc-500">{stock.name}</p>
-            <p className="text-2xl font-bold tracking-tight text-white">
-              {stock.ticker}
+            <p className="text-[11px] font-medium text-[var(--text-3)] mb-0.5 tracking-wide">
+              {stock.name}
             </p>
+            <p className="text-xl font-bold text-white tracking-tight">{stock.ticker}</p>
           </div>
           <span
-            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${
+            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold mt-0.5 ${
               isUp
-                ? "bg-emerald-500/10 text-emerald-400"
-                : "bg-red-500/10 text-red-400"
+                ? "bg-[var(--green-dim)] text-[var(--green)]"
+                : "bg-[var(--red-dim)] text-[var(--red)]"
             }`}
           >
-            {isUp ? "↑" : "↓"} {isUp ? "BUY" : "SELL"}
+            {isUp ? "▲" : "▼"} {isUp ? "Buy" : "Sell"}
           </span>
         </div>
 
-        {/* Price */}
-        <div className="mb-1 flex items-baseline gap-2">
-          <span className="text-3xl font-bold text-white">
-            ${latestPrice.close.toFixed(2)}
-          </span>
-          <span
-            className={`text-sm font-medium ${
-              isPositive ? "text-emerald-400" : "text-red-400"
-            }`}
-          >
-            {isPositive ? "+" : ""}
-            {change.toFixed(2)} ({isPositive ? "+" : ""}
-            {changePct.toFixed(2)}%)
-          </span>
+        {/* Sparkline */}
+        <div className="mb-3 -mx-1">
+          <Sparkline prices={sparkPrices} positive={isPositive} height={44} />
         </div>
 
-        <p className="mb-4 text-xs text-zinc-600">
-          Vol: {(latestPrice.volume / 1_000_000).toFixed(1)}M
-        </p>
-
-        {/* Confidence */}
-        <ConfidenceMeter confidence={prediction.confidence} />
+        {/* Bottom row: price + change */}
+        <div className="flex items-end justify-between">
+          <div>
+            <p className="num text-2xl font-bold text-white leading-none">
+              ${latestPrice.close.toFixed(2)}
+            </p>
+            <p className={`num text-xs mt-1 font-medium ${isPositive ? "text-[var(--green)]" : "text-[var(--red)]"}`}>
+              {isPositive ? "+" : ""}{change.toFixed(2)} ({isPositive ? "+" : ""}{changePct.toFixed(2)}%)
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="num text-[11px] text-[var(--text-3)]">
+              {Math.round(prediction.confidence * 100)}% conf.
+            </p>
+            <p className="num text-[11px] text-[var(--text-3)] mt-0.5">
+              Vol {(latestPrice.volume / 1_000_000).toFixed(1)}M
+            </p>
+          </div>
+        </div>
       </div>
     </Link>
   );

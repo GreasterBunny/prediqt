@@ -4,98 +4,69 @@ interface AccuracyStatsProps {
   metrics: AccuracyMetrics;
 }
 
-function StatCell({
-  label,
-  value,
-  sub,
-  color,
-}: {
-  label: string;
-  value: string;
-  sub?: string;
-  color?: string;
-}) {
+function Stat({
+  label, value, sub, color,
+}: { label: string; value: string; sub?: string; color?: string }) {
   return (
-    <div className="rounded-lg bg-zinc-800/50 p-3">
-      <p className="text-xs text-zinc-500">{label}</p>
-      <p className={`mt-1 text-xl font-bold ${color ?? "text-white"}`}>{value}</p>
-      {sub && <p className="mt-0.5 text-[10px] text-zinc-600">{sub}</p>}
+    <div className="flex flex-col gap-1 p-4 rounded-xl bg-[var(--bg-raised)]">
+      <p className="text-[11px] text-[var(--text-3)]">{label}</p>
+      <p className={`num text-2xl font-bold leading-none ${color ?? "text-white"}`}>{value}</p>
+      {sub && <p className="text-[10px] text-[var(--text-3)] mt-0.5">{sub}</p>}
     </div>
   );
 }
 
 export default function AccuracyStats({ metrics }: AccuracyStatsProps) {
-  const {
-    total,
-    correct,
-    accuracy,
-    upAccuracy,
-    upTotal,
-    downAccuracy,
-    downTotal,
-    streak,
-    streakType,
-  } = metrics;
+  const { total, correct, accuracy, upAccuracy, upTotal, downAccuracy, downTotal, streak, streakType } = metrics;
 
-  const accuracyPct = Math.round(accuracy * 100);
-  const upPct = Math.round(upAccuracy * 100);
-  const downPct = Math.round(downAccuracy * 100);
+  const aPct = Math.round(accuracy * 100);
+  const uPct = Math.round(upAccuracy * 100);
+  const dPct = Math.round(downAccuracy * 100);
 
-  const accuracyColor =
-    accuracyPct >= 60 ? "text-emerald-400" : accuracyPct >= 50 ? "text-yellow-400" : "text-red-400";
-
-  const streakColor = streakType === "correct" ? "text-emerald-400" : "text-red-400";
-  const streakLabel =
-    streakType === "correct"
-      ? `${streak} correct in a row`
-      : streakType === "incorrect"
-      ? `${streak} missed in a row`
-      : "No streak";
+  const aColor = aPct >= 60 ? "text-[var(--green)]" : aPct >= 50 ? "text-yellow-400" : "text-[var(--red)]";
+  const uColor = upTotal > 0 ? (uPct >= 50 ? "text-[var(--green)]" : "text-[var(--red)]") : "text-[var(--text-3)]";
+  const dColor = downTotal > 0 ? (dPct >= 50 ? "text-[var(--green)]" : "text-[var(--red)]") : "text-[var(--text-3)]";
+  const sColor = streakType === "correct" ? "text-[var(--green)]" : streakType === "incorrect" ? "text-[var(--red)]" : "text-[var(--text-3)]";
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 backdrop-blur-sm">
-      <div className="mb-4 flex items-center justify-between">
-        <p className="text-xs font-medium uppercase tracking-widest text-zinc-500">
-          Model Accuracy
-        </p>
+    <div className="card p-5" style={{ background: "var(--bg-card)" }}>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-[11px] font-medium text-[var(--text-3)] tracking-wide">Model Accuracy</p>
         {total > 0 && (
-          <span className="text-xs text-zinc-600">
-            {correct}/{total} resolved
-          </span>
+          <span className="text-[11px] text-[var(--text-3)] num">{correct}/{total} resolved</span>
         )}
       </div>
 
       {total === 0 ? (
-        <p className="py-4 text-center text-sm text-zinc-600">
-          No resolved predictions yet
-        </p>
+        <div className="py-6 text-center">
+          <p className="text-sm text-[var(--text-3)]">No resolved predictions yet</p>
+          <p className="text-xs text-[var(--text-3)] mt-1">Predictions resolve after 24 hours</p>
+        </div>
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatCell
-            label="Overall"
-            value={`${accuracyPct}%`}
-            sub="all predictions"
-            color={accuracyColor}
-          />
-          <StatCell
+          <Stat label="Overall" value={`${aPct}%`} sub="all predictions" color={aColor} />
+          <Stat
             label="Bullish calls"
-            value={upTotal > 0 ? `${upPct}%` : "—"}
+            value={upTotal > 0 ? `${uPct}%` : "—"}
             sub={upTotal > 0 ? `${upTotal} predictions` : "no data"}
-            color={upTotal > 0 ? (upPct >= 50 ? "text-emerald-400" : "text-red-400") : "text-zinc-500"}
+            color={uColor}
           />
-          <StatCell
+          <Stat
             label="Bearish calls"
-            value={downTotal > 0 ? `${downPct}%` : "—"}
+            value={downTotal > 0 ? `${dPct}%` : "—"}
             sub={downTotal > 0 ? `${downTotal} predictions` : "no data"}
-            color={downTotal > 0 ? (downPct >= 50 ? "text-emerald-400" : "text-red-400") : "text-zinc-500"}
+            color={dColor}
           />
-          <div className="rounded-lg bg-zinc-800/50 p-3">
-            <p className="text-xs text-zinc-500">Streak</p>
-            <p className={`mt-1 text-xl font-bold ${streakColor}`}>
-              {streakType ? streak : "—"}
-            </p>
-            <p className="mt-0.5 text-[10px] text-zinc-600">{streakLabel}</p>
-          </div>
+          <Stat
+            label="Streak"
+            value={streakType ? `${streak}` : "—"}
+            sub={
+              streakType === "correct" ? "correct in a row"
+              : streakType === "incorrect" ? "missed in a row"
+              : "no streak"
+            }
+            color={sColor}
+          />
         </div>
       )}
     </div>
