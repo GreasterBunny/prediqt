@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getMockStock } from "@/mock/data";
+import { getStockByTicker } from "@/services/stocks";
 import PredictionCard from "@/components/PredictionCard";
 import IndicatorPanel from "@/components/IndicatorPanel";
 import PredictionHistoryTable from "@/components/PredictionHistoryTable";
@@ -10,9 +10,11 @@ interface StockPageProps {
   params: Promise<{ ticker: string }>;
 }
 
+export const revalidate = 60;
+
 export default async function StockPage({ params }: StockPageProps) {
   const { ticker } = await params;
-  const data = getMockStock(ticker);
+  const data = await getStockByTicker(ticker);
 
   if (!data) notFound();
 
@@ -70,10 +72,8 @@ export default async function StockPage({ params }: StockPageProps) {
 
       {/* Content grid */}
       <main className="mx-auto max-w-5xl space-y-4">
-        {/* Chart — full width */}
         <ChartComponent prices={priceHistory} ticker={stock.ticker} />
 
-        {/* Prediction + Indicators row */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <PredictionCard prediction={prediction} />
           <IndicatorPanel indicators={indicators} currentPrice={latestPrice.close} />
@@ -99,7 +99,6 @@ export default async function StockPage({ params }: StockPageProps) {
           </div>
         </div>
 
-        {/* Prediction history */}
         <PredictionHistoryTable history={predictionHistory} />
 
         <p className="pb-4 text-center text-xs text-zinc-700">
