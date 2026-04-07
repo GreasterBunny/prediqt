@@ -32,6 +32,14 @@ export interface Prediction {
   model_version: string;
 }
 
+export interface Signal {
+  name: string;
+  direction: "up" | "down" | "neutral";
+  confidence: number;
+  reason: string;
+  weight: number;
+}
+
 export interface StockWithData {
   stock: Stock;
   latestPrice: Price;

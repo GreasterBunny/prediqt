@@ -1,11 +1,13 @@
 import { notFound } from "next/navigation";
 import { getStockByTicker } from "@/services/stocks";
+import { runPrediction } from "@/services/predictions";
+import { isSupabaseConfigured } from "@/lib/supabaseClient";
 import Header from "@/components/Header";
 import PredictionCard from "@/components/PredictionCard";
+import PredictionSignals from "@/components/PredictionSignals";
 import IndicatorPanel from "@/components/IndicatorPanel";
 import PredictionHistoryTable from "@/components/PredictionHistoryTable";
 import ChartComponent from "@/components/ChartComponent";
-import { isSupabaseConfigured } from "@/lib/supabaseClient";
 
 interface StockPageProps {
   params: Promise<{ ticker: string }>;
@@ -20,6 +22,9 @@ export default async function StockPage({ params }: StockPageProps) {
   if (!data) notFound();
 
   const { stock, latestPrice, prediction, indicators, priceHistory, predictionHistory } = data;
+
+  // Always run the engine to get fresh signals
+  const engineResult = runPrediction(priceHistory);
 
   const prevClose = priceHistory[priceHistory.length - 2]?.close ?? latestPrice.open;
   const change = latestPrice.close - prevClose;
@@ -46,8 +51,7 @@ export default async function StockPage({ params }: StockPageProps) {
                     : "bg-red-500/10 text-red-400"
                 }`}
               >
-                {isPositive ? "+" : ""}
-                {changePct.toFixed(2)}%
+                {isPositive ? "+" : ""}{changePct.toFixed(2)}%
               </span>
             </div>
             <p className="mt-0.5 text-zinc-500">{stock.name}</p>
@@ -58,8 +62,7 @@ export default async function StockPage({ params }: StockPageProps) {
               ${latestPrice.close.toFixed(2)}
             </p>
             <p className={`text-sm ${isPositive ? "text-emerald-400" : "text-red-400"}`}>
-              {isPositive ? "+" : ""}
-              {change.toFixed(2)} today
+              {isPositive ? "+" : ""}{change.toFixed(2)} today
             </p>
           </div>
         </div>
@@ -69,9 +72,12 @@ export default async function StockPage({ params }: StockPageProps) {
 
         {/* Prediction + Indicators */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <PredictionCard prediction={prediction} />
+          <PredictionCard prediction={{ ...prediction, ...engineResult }} />
           <IndicatorPanel indicators={indicators} currentPrice={latestPrice.close} />
         </div>
+
+        {/* Signal breakdown — full width */}
+        <PredictionSignals signals={engineResult.signals} />
 
         {/* OHLCV */}
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-4 backdrop-blur-sm">

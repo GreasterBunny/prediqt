@@ -17,19 +17,13 @@ export default function PredictionCard({ prediction }: PredictionCardProps) {
       <div className="mb-4 flex items-center gap-3">
         <span
           className={`flex h-10 w-10 items-center justify-center rounded-full text-lg ${
-            isUp
-              ? "bg-emerald-500/15 text-emerald-400"
-              : "bg-red-500/15 text-red-400"
+            isUp ? "bg-emerald-500/15 text-emerald-400" : "bg-red-500/15 text-red-400"
           }`}
         >
           {isUp ? "↑" : "↓"}
         </span>
         <div>
-          <p
-            className={`text-xl font-bold ${
-              isUp ? "text-emerald-400" : "text-red-400"
-            }`}
-          >
+          <p className={`text-xl font-bold ${isUp ? "text-emerald-400" : "text-red-400"}`}>
             {isUp ? "Bullish" : "Bearish"}
           </p>
           <p className="text-xs text-zinc-500">
