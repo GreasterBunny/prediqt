@@ -43,6 +43,12 @@ export default function Header({ isLive = false, backHref, backLabel }: HeaderPr
           >
             Backtesting
           </Link>
+          <Link
+            href="/pipeline"
+            className="text-xs font-medium text-[var(--text-2)] hover:text-white transition-colors px-3 py-1.5 rounded-full hover:bg-[var(--bg-raised)]"
+          >
+            Pipeline
+          </Link>
 
           <AlertBell />
 

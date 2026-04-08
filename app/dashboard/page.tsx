@@ -1,16 +1,45 @@
 import { getAllStocks } from "@/services/stocks";
-import { isSupabaseConfigured } from "@/lib/supabaseClient";
+import { isSupabaseConfigured, getSupabaseClient } from "@/lib/supabaseClient";
 import { runPrediction } from "@/services/predictions";
 import { runPredictionV2 } from "@/services/predictions-v2";
+import { detectDataSource } from "@/services/market-data";
 import StockCard from "@/components/StockCard";
 import type { AlignmentStatus } from "@/components/StockCard";
 import Header from "@/components/Header";
+import Link from "next/link";
 
 export const revalidate = 60;
 
 export default async function DashboardPage() {
   const stocks = await getAllStocks();
   const isLive = isSupabaseConfigured();
+  const dataSource = detectDataSource();
+
+  // Check data freshness — get most recent price date across all stocks
+  let latestPriceDate: string | null = null;
+  let usingMockData = true;
+  if (isLive) {
+    const supabase = getSupabaseClient();
+    if (supabase) {
+      const { data } = await supabase
+        .from("prices")
+        .select("timestamp")
+        .order("timestamp", { ascending: false })
+        .limit(1)
+        .single();
+      if (data?.timestamp) {
+        latestPriceDate = (data.timestamp as string).split("T")[0];
+        usingMockData = false;
+      }
+    }
+  }
+
+  const today = new Date().toISOString().split("T")[0];
+  const yesterday = new Date(Date.now() - 86_400_000).toISOString().split("T")[0];
+  const dayOfWeek = new Date().getUTCDay();
+  const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+  const isStale = !usingMockData && latestPriceDate !== null &&
+    latestPriceDate < yesterday && !isWeekend;
 
   // Compute both model predictions + alignment for each stock
   const stocksWithAlignment = stocks.map((data) => {
@@ -55,6 +84,70 @@ export default async function DashboardPage() {
         <Header isLive={isLive} />
 
         <main className="pt-8 pb-16">
+
+          {/* Data source / freshness banner */}
+          {isLive && (
+            <div className="mb-6">
+              {usingMockData ? (
+                <div
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl px-4 py-3 text-xs"
+                  style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.15)" }}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-[var(--red)]">⚠</span>
+                    <span className="font-semibold text-white">Running on mock data</span>
+                    <span className="text-[var(--text-3)]">— No real price data in database yet.</span>
+                  </div>
+                  <Link
+                    href="/pipeline"
+                    className="font-semibold px-3 py-1 rounded-full transition-colors"
+                    style={{ background: "rgba(239,68,68,0.12)", color: "var(--red)" }}
+                  >
+                    Backfill real data →
+                  </Link>
+                </div>
+              ) : isStale ? (
+                <div
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl px-4 py-3 text-xs"
+                  style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.15)" }}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-[var(--red)]">⚠</span>
+                    <span className="font-semibold text-white">Price data is stale</span>
+                    <span className="num text-[var(--text-3)]">Last update: {latestPriceDate}</span>
+                  </div>
+                  <Link
+                    href="/pipeline"
+                    className="font-semibold px-3 py-1 rounded-full transition-colors"
+                    style={{ background: "rgba(239,68,68,0.12)", color: "var(--red)" }}
+                  >
+                    Refresh data →
+                  </Link>
+                </div>
+              ) : (
+                <div
+                  className="flex flex-wrap items-center gap-3 rounded-2xl px-4 py-3 text-xs"
+                  style={{ background: "rgba(34,197,94,0.04)", border: "1px solid rgba(34,197,94,0.12)" }}
+                >
+                  <span className="text-[var(--green)]">●</span>
+                  <span className="font-semibold text-white">Live data</span>
+                  <span className="text-[var(--text-3)]">
+                    via {dataSource === "polygon" ? "Polygon.io" : "Yahoo Finance"}
+                    {latestPriceDate && ` · Last close ${latestPriceDate}`}
+                  </span>
+                  <span className="text-[var(--text-3)]">·</span>
+                  <span className="text-[var(--text-3)]">Cron runs weekdays at 4 PM ET</span>
+                  <Link
+                    href="/pipeline"
+                    className="ml-auto text-[var(--text-3)] hover:text-[var(--text-2)] transition-colors"
+                  >
+                    Pipeline →
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Page title + date */}
           <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
             <div>
