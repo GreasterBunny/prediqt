@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Logo from "./Logo";
+import AlertBell from "./AlertBell";
 
 interface HeaderProps {
   isLive?: boolean;
@@ -29,14 +30,23 @@ export default function Header({ isLive = false, backHref, backLabel }: HeaderPr
           </Link>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <Link
             href="/paper-trading"
             className="text-xs font-medium text-[var(--text-2)] hover:text-white transition-colors px-3 py-1.5 rounded-full hover:bg-[var(--bg-raised)]"
           >
             Paper Trading
           </Link>
-          <div className="flex items-center gap-2 rounded-full px-3 py-1.5"
+          <Link
+            href="/backtesting"
+            className="text-xs font-medium text-[var(--text-2)] hover:text-white transition-colors px-3 py-1.5 rounded-full hover:bg-[var(--bg-raised)]"
+          >
+            Backtesting
+          </Link>
+
+          <AlertBell />
+
+          <div className="flex items-center gap-2 rounded-full px-3 py-1.5 ml-1"
             style={{ background: "var(--bg-raised)", border: "1px solid var(--border)" }}>
             <span className={`h-1.5 w-1.5 rounded-full ${isLive ? "bg-[var(--green)] animate-pulse" : "bg-[var(--text-3)]"}`} />
             <span className="text-xs font-medium text-[var(--text-2)]">

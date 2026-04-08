@@ -11,6 +11,9 @@ import PredictionHistoryTable from "@/components/PredictionHistoryTable";
 import AccuracyStats from "@/components/AccuracyStats";
 import AccuracyChart from "@/components/AccuracyChart";
 import ChartComponent from "@/components/ChartComponent";
+import SentimentCard from "@/components/SentimentCard";
+import ModelComparison from "@/components/ModelComparison";
+import { runPredictionV2 } from "@/services/predictions-v2";
 
 interface StockPageProps {
   params: Promise<{ ticker: string }>;
@@ -25,6 +28,7 @@ export default async function StockPage({ params }: StockPageProps) {
 
   const { stock, latestPrice, prediction, indicators, priceHistory, predictionHistory } = data;
   const engineResult = runPrediction(priceHistory);
+  const engineResultV2 = runPredictionV2(priceHistory);
   const accuracy = computeAccuracy(predictionHistory);
 
   const prevClose = priceHistory[priceHistory.length - 2]?.close ?? latestPrice.open;
@@ -77,6 +81,12 @@ export default async function StockPage({ params }: StockPageProps) {
 
           {/* Signal breakdown */}
           <PredictionSignals signals={engineResult.signals} />
+
+          {/* Model Comparison */}
+          <ModelComparison v1={engineResult} v2={engineResultV2} />
+
+          {/* News Sentiment */}
+          <SentimentCard ticker={stock.ticker} />
 
           {/* Accuracy */}
           <AccuracyStats metrics={accuracy} />

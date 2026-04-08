@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSupabaseClient } from "@/lib/supabaseClient";
 import { runPrediction } from "@/services/predictions";
 import { computeIndicators } from "@/services/indicators";
+import { maybeCreatePredictionFlipAlert, maybeCreateHighConfidenceAlert } from "@/services/alerts";
 import type { Price, Stock } from "@/types";
 
 /**
@@ -67,6 +68,10 @@ export async function POST() {
       if (insertError) {
         errors.push({ ticker: stock.ticker, error: insertError.message });
       } else {
+        // Generate alerts (non-blocking)
+        void maybeCreatePredictionFlipAlert(supabase, stock.ticker, stock.id, result.prediction, result.confidence);
+        void maybeCreateHighConfidenceAlert(supabase, stock.ticker, stock.id, result.prediction, result.confidence);
+
         results.push({
           ticker: stock.ticker,
           prediction: result.prediction,
