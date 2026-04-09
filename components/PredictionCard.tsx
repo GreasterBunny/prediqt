@@ -45,7 +45,7 @@ export default function PredictionCard({ prediction }: PredictionCardProps) {
           <span className="text-[var(--text-3)]">Confidence</span>
           <span
             className="num font-semibold"
-            style={{ color: isHigh ? "var(--gold)" : "white" }}
+            style={{ color: isUp ? "var(--green)" : "var(--red)" }}
           >
             {pct}%
           </span>
@@ -55,12 +55,12 @@ export default function PredictionCard({ prediction }: PredictionCardProps) {
             className="h-full rounded-full transition-all"
             style={{
               width: `${pct}%`,
-              background: isHigh ? "var(--gold)" : isUp ? "var(--green)" : "var(--red)",
+              background: isUp ? "var(--green)" : "var(--red)",
             }}
           />
         </div>
         {isHigh && (
-          <p className="text-[10px] mt-1.5" style={{ color: "var(--gold)" }}>
+          <p className={`text-[10px] mt-1.5 ${isUp ? "text-[var(--green)]" : "text-[var(--red)]"}`}>
             High confidence signal
           </p>
         )}

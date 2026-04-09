@@ -59,31 +59,30 @@ async function runStep(
   }
 }
 
-export async function GET(request: NextRequest) {
-  // ── Security check ──────────────────────────────────────────────────────────
+async function runPipeline(request: NextRequest, isManual: boolean) {
+  // ── Security check (cron secret only required for automated GET) ────────────
   const cronSecret = process.env.CRON_SECRET;
-  if (cronSecret) {
+  if (!isManual && cronSecret) {
     const authHeader = request.headers.get("Authorization");
     if (authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
   }
 
-  // Skip weekends (safety check in case Vercel fires on a weekend somehow)
-  const dayOfWeek = new Date().getUTCDay(); // 0=Sun, 6=Sat
-  if (dayOfWeek === 0 || dayOfWeek === 6) {
-    return NextResponse.json({
-      skipped: true,
-      reason: "Weekend — markets closed",
-      timestamp: new Date().toISOString(),
-    });
+  // Skip weekends for automated cron only (not manual triggers)
+  if (!isManual) {
+    const dayOfWeek = new Date().getUTCDay(); // 0=Sun, 6=Sat
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      return NextResponse.json({
+        skipped: true,
+        reason: "Weekend — markets closed",
+        timestamp: new Date().toISOString(),
+      });
+    }
   }
 
-  // ── Determine base URL for internal fetch calls ─────────────────────────────
-  // On Vercel: VERCEL_URL is set automatically. In dev: localhost:3000.
-  const host = process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : "http://localhost:3000";
+  // ── Derive base URL from the incoming request (works across all deployments) ─
+  const host = new URL(request.url).origin;
 
   const pipelineStart = Date.now();
   const steps: StepResult[] = [];
@@ -137,7 +136,11 @@ export async function GET(request: NextRequest) {
   });
 }
 
-// Also support POST for manual triggers (pipeline page uses POST)
+export async function GET(request: NextRequest) {
+  return runPipeline(request, false);
+}
+
+// POST = manual trigger from the Pipeline page (no weekend skip, no auth required)
 export async function POST(request: NextRequest) {
-  return GET(request);
+  return runPipeline(request, true);
 }

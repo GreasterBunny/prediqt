@@ -171,13 +171,13 @@ export default async function DashboardPage() {
                 <p className="text-xs font-semibold text-white">Model Alignment</p>
               </div>
               <p className="text-[10px] text-[var(--text-3)]">
-                Gold cards = both Technical &amp; Momentum models agree — a higher-conviction signal
+                Green border = both Technical &amp; Momentum models agree — a higher-conviction signal
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
               <div
                 className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold"
-                style={{ background: "var(--gold-dim)", color: "var(--gold)" }}
+                style={{ background: "var(--green-dim)", color: "var(--green)" }}
               >
                 <IconLightning size={11} />
                 <span className="num">{alignedBullish}</span>
@@ -223,7 +223,7 @@ export default async function DashboardPage() {
           </div>
 
           <p className="mt-12 text-center text-xs text-[var(--text-3)]">
-            Prediqt · Gold border = both models aligned · Not financial advice
+            Prediqt · Green border = both models aligned · Not financial advice
           </p>
         </main>
       </div>

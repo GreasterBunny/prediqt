@@ -36,7 +36,7 @@ export default function StockCard({ data, alignment }: StockCardProps) {
         style={{
           background: "var(--bg-card)",
           borderLeft: isAligned
-            ? "2px solid var(--gold)"
+            ? "2px solid var(--green)"
             : undefined,
         }}
       >
@@ -44,13 +44,13 @@ export default function StockCard({ data, alignment }: StockCardProps) {
         {isAligned && (
           <div
             className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 mb-3 text-[10px] font-semibold"
-            style={{ background: "var(--gold-dim)", color: "var(--gold)" }}
+            style={{ background: "var(--green-dim)", color: "var(--green)" }}
           >
             <IconLightning size={11} />
             <span>Both models {alignUp ? "bullish" : "bearish"}</span>
             <span
               className="ml-auto num rounded-full px-1.5 py-0.5 text-[9px]"
-              style={{ background: "var(--gold-border)", color: "var(--gold)" }}
+              style={{ background: "rgba(34,197,94,0.20)", color: "var(--green)" }}
             >
               {Math.round((alignment?.avgConfidence ?? 0) * 100)}% avg
             </span>

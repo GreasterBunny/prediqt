@@ -22,8 +22,8 @@ function AlertTypeIcon({ type }: { type: string }) {
     case "high_confidence":
       return (
         <span className={`${cls} flex h-7 w-7 items-center justify-center rounded-full`}
-          style={{ background: "var(--gold-dim)" }}>
-          <IconLightning size={13} className="text-[var(--gold)]" />
+          style={{ background: "rgba(34,197,94,0.12)" }}>
+          <IconLightning size={13} className="text-[var(--green)]" />
         </span>
       );
     case "trade_closed":
@@ -102,7 +102,7 @@ export default function AlertBell() {
         {data.unreadCount > 0 && (
           <span
             className="absolute -top-0.5 -right-0.5 min-w-[14px] h-3.5 flex items-center justify-center rounded-full text-[9px] font-bold text-black px-0.5"
-            style={{ background: "var(--gold)" }}
+            style={{ background: "var(--green)" }}
           >
             {data.unreadCount > 9 ? "9+" : data.unreadCount}
           </span>
@@ -166,7 +166,7 @@ export default function AlertBell() {
                         <p className="text-xs font-medium text-white leading-snug">{alert.title}</p>
                         {!alert.is_read && (
                           <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1"
-                            style={{ background: "var(--gold)" }} />
+                            style={{ background: "var(--green)" }} />
                         )}
                       </div>
                       <p className="text-[11px] text-[var(--text-2)] mt-0.5 leading-relaxed">{alert.message}</p>
