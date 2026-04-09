@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { IconWarning, IconCheck, IconX, IconChevronDown, IconChevronUp, IconRefresh, IconPlay, IconDot, IconDownload, IconDatabase, IconCpu, IconTarget, IconBot, IconClock, IconArrowRight, IconActivity } from "@/components/Icons";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -84,7 +85,7 @@ function FreshnessChip({ latestDate, today }: { latestDate: string | null; today
   const isYesterday = latestDate === yesterday;
   const daysOld = Math.floor((Date.now() - new Date(latestDate).getTime()) / 86400000);
 
-  if (isToday) return <span className="text-[10px] text-[var(--green)] font-semibold">● Today</span>;
+  if (isToday) return <span className="text-[10px] text-[var(--green)] font-semibold"><><IconDot size={6} className="inline mr-1" />Today</></span>;
   if (isYesterday) return <span className="text-[10px] text-[var(--green)]">Yesterday</span>;
   return <span className="text-[10px] text-[var(--red)]">{daysOld}d old</span>;
 }
@@ -108,13 +109,13 @@ function StepRow({ result }: { result: StepResult }) {
       >
         <div className="flex items-center gap-2.5">
           <span className={`text-sm ${result.ok ? "text-[var(--green)]" : "text-[var(--red)]"}`}>
-            {result.ok ? "✓" : "✗"}
+            {result.ok ? <IconCheck size={11} className="inline" /> : <IconX size={11} className="inline" />}
           </span>
           <span className="text-xs font-medium text-white font-mono">{result.step}</span>
         </div>
         <div className="flex items-center gap-3">
           <span className="num text-[11px] text-[var(--text-3)]">{result.durationMs}ms</span>
-          <span className="text-[var(--text-3)] text-[10px]">{expanded ? "▲" : "▼"}</span>
+          <span className="text-[var(--text-3)] text-[10px]">{expanded ? <IconChevronUp size={11} /> : <IconChevronDown size={11} />}</span>
         </div>
       </button>
       {expanded && (
@@ -131,7 +132,7 @@ function StepRow({ result }: { result: StepResult }) {
 // ─── Step card (individual pipeline step with manual trigger) ─────────────────
 
 interface StepCardProps {
-  icon: string;
+  icon: React.ReactNode;
   title: string;
   description: string;
   detail: string;
@@ -162,7 +163,7 @@ function StepCard({ icon, title, description, detail, onRun }: StepCardProps) {
     <div className="card p-5" style={{ background: "var(--bg-card)" }}>
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex items-start gap-3">
-          <span className="text-xl mt-0.5">{icon}</span>
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg flex-shrink-0" style={{ background: "var(--bg-hover)" }}>{icon}</span>
           <div>
             <p className="text-sm font-semibold text-white">{title}</p>
             <p className="text-[11px] text-[var(--text-3)] mt-0.5">{description}</p>
@@ -190,7 +191,7 @@ function StepCard({ icon, title, description, detail, onRun }: StepCardProps) {
         >
           <div className="flex items-center gap-2 mb-2">
             <span className={success ? "text-[var(--green)]" : "text-[var(--red)]"}>
-              {success ? "✓ Success" : "✗ Failed"}
+              {success ? <><IconCheck size={11} className="inline" /> Success</> : <><IconX size={11} className="inline" /> Failed</>}
             </span>
           </div>
           <pre className="text-[10px] text-[var(--text-2)] overflow-x-auto whitespace-pre-wrap leading-relaxed max-h-32">
@@ -283,13 +284,13 @@ export default function PipelineClient() {
                 {status.isStale && (
                   <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
                     style={{ background: "rgba(239,68,68,0.12)", color: "var(--red)" }}>
-                    ⚠ Data is stale
+                    <IconWarning size={11} className="inline mr-1" /> Data is stale
                   </span>
                 )}
                 {!status.isStale && status.stocks.some(s => s.rowCount > 0) && (
                   <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
                     style={{ background: "rgba(34,197,94,0.12)", color: "var(--green)" }}>
-                    ✓ Up to date
+                    <IconCheck size={11} className="inline" /> Up to date
                   </span>
                 )}
               </div>
@@ -299,7 +300,7 @@ export default function PipelineClient() {
             onClick={loadStatus}
             className="text-[11px] text-[var(--text-3)] hover:text-[var(--text-2)] transition-colors"
           >
-            ↻ Refresh
+            <><IconRefresh size={12} className="inline mr-1" />Refresh</>
           </button>
         </div>
 
@@ -374,7 +375,7 @@ export default function PipelineClient() {
             }}
           >
             {pipelineRunning && <Spinner />}
-            {pipelineRunning ? "Running pipeline…" : "▶ Run Now"}
+            {pipelineRunning ? "Running pipeline…" : <><IconPlay size={13} className="inline mr-1.5" />Run Now</>}
           </button>
         </div>
 
@@ -383,7 +384,7 @@ export default function PipelineClient() {
           <div className="mt-2 space-y-2">
             <div className="flex items-center gap-3 mb-3">
               <span className={`text-sm font-bold ${pipelineResult.success ? "text-[var(--green)]" : pipelineResult.skipped ? "text-[var(--text-2)]" : "text-[var(--red)]"}`}>
-                {pipelineResult.skipped ? "⏭ Skipped" : pipelineResult.success ? "✓ Pipeline complete" : "✗ Pipeline had errors"}
+                {pipelineResult.skipped ? "Skipped" : pipelineResult.success ? <><IconCheck size={11} className="inline" /> Pipeline complete</> : <><IconX size={11} className="inline" /> Pipeline had errors</>}
               </span>
               {pipelineResult.totalDurationMs && (
                 <span className="num text-[11px] text-[var(--text-3)]">
@@ -408,35 +409,35 @@ export default function PipelineClient() {
         </p>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <StepCard
-            icon="📥"
+            icon={<IconDownload size={15} />}
             title="Fetch Prices (Daily)"
             description="Pull last 7 days of OHLCV data"
             detail="POST /api/fetch-prices?mode=daily — upserts into prices table, deduplicates automatically"
             onRun={fetchPricesDaily}
           />
           <StepCard
-            icon="🗂"
+            icon={<IconDatabase size={15} />}
             title="Backfill Prices (100 days)"
             description="Initial data population or gap fill"
             detail="POST /api/fetch-prices?mode=backfill — fetches 100 calendar days of history. Run once to seed the database."
             onRun={fetchPricesBackfill}
           />
           <StepCard
-            icon="🧠"
+            icon={<IconCpu size={15} />}
             title="Run Predictions"
             description="AI prediction engine for all stocks"
             detail="POST /api/run-predictions — computes MA Crossover, RSI, MACD, Momentum signals and stores results"
             onRun={runPredictions}
           />
           <StepCard
-            icon="✅"
+            icon={<IconTarget size={15} />}
             title="Resolve Predictions"
             description="Grade yesterday's predictions"
             detail="POST /api/resolve-predictions — marks predictions correct/incorrect based on actual price movement"
             onRun={resolvePredictions}
           />
           <StepCard
-            icon="🤖"
+            icon={<IconBot size={15} />}
             title="Paper Trading Bot"
             description="AI bot opens and closes positions"
             detail="POST /api/paper-trading/execute — bot reads new predictions, opens high-confidence trades, closes old ones"
@@ -452,7 +453,7 @@ export default function PipelineClient() {
         </p>
         <div className="space-y-3">
           <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "var(--bg-raised)" }}>
-            <span className="text-lg">⏰</span>
+            <IconClock size={16} className="text-[var(--text-3)]" />
             <div>
               <p className="text-xs font-semibold text-white">Daily Cron — Weekdays at 4 PM ET (21:00 UTC)</p>
               <p className="text-[11px] text-[var(--text-3)] mt-0.5">
@@ -468,15 +469,15 @@ export default function PipelineClient() {
 
           <div className="text-[11px] text-[var(--text-3)] space-y-1.5 pt-1">
             <div className="flex items-start gap-2">
-              <span className="text-[var(--green)] mt-0.5">→</span>
+              <IconArrowRight size={13} className="text-[var(--green)] mt-0.5 flex-shrink-0" />
               <span><strong className="text-[var(--text-2)]">POLYGON_API_KEY</strong> — set in Vercel env vars for real-time data. Leave blank to use Yahoo Finance (free, no key needed).</span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="text-[var(--green)] mt-0.5">→</span>
+              <IconArrowRight size={13} className="text-[var(--green)] mt-0.5 flex-shrink-0" />
               <span><strong className="text-[var(--text-2)]">CRON_SECRET</strong> — set in Vercel env vars to secure the cron endpoint. Vercel auto-includes it as a Bearer token.</span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="text-[var(--green)] mt-0.5">→</span>
+              <IconArrowRight size={13} className="text-[var(--green)] mt-0.5 flex-shrink-0" />
               <span>On first deploy, click <strong className="text-[var(--text-2)]">Backfill Prices</strong> above to seed 100 days of historical data.</span>
             </div>
           </div>

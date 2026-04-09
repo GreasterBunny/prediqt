@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Signal } from "@/types";
 import { getSignalInfo } from "@/lib/signal-descriptions";
+import { IconInfo } from "./Icons";
 
 interface PredictionSignalsProps {
   signals: Signal[];
@@ -13,16 +14,6 @@ const cfg = {
   down:    { label: "Bearish", color: "var(--red)",   textColor: "text-[var(--red)]",   bg: "bg-[var(--red-dim)]"  },
   neutral: { label: "Neutral", color: "#52525b",      textColor: "text-[var(--text-2)]", bg: "bg-[var(--bg-raised)]" },
 };
-
-function InfoIcon() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" className="flex-shrink-0">
-      <circle cx="6.5" cy="6.5" r="6" stroke="currentColor" strokeWidth="1"/>
-      <path d="M6.5 6v3.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-      <circle cx="6.5" cy="3.75" r="0.75" fill="currentColor"/>
-    </svg>
-  );
-}
 
 function SignalRow({ signal }: { signal: Signal }) {
   const [expanded, setExpanded] = useState(false);
@@ -52,7 +43,7 @@ function SignalRow({ signal }: { signal: Signal }) {
                 className="flex items-center gap-1 text-[var(--text-3)] hover:text-[var(--text-2)] transition-colors"
                 aria-label={expanded ? "Hide explanation" : "Show explanation"}
               >
-                <InfoIcon />
+                <IconInfo size={12} />
                 <span className="text-[10px]">{expanded ? "less" : "explain"}</span>
               </button>
             )}
@@ -143,7 +134,7 @@ export default function PredictionSignals({ signals }: PredictionSignalsProps) {
           onClick={() => setAllExpanded((e) => !e)}
           className="text-[11px] text-[var(--text-3)] hover:text-[var(--text-2)] transition-colors flex items-center gap-1"
         >
-          <InfoIcon />
+          <IconInfo size={13} />
           {allExpanded ? "collapse all" : "explain all"}
         </button>
       </div>
@@ -198,7 +189,7 @@ function ExpandableSignalRow({ signal, forceExpanded }: { signal: Signal; forceE
                 }`}
                 aria-label={isOpen ? "Collapse" : "Explain"}
               >
-                <InfoIcon />
+                <IconInfo size={12} />
                 <span>{isOpen && !forceExpanded ? "less" : "explain"}</span>
               </button>
             )}

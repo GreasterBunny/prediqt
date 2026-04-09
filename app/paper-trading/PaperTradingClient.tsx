@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { IconPlay, IconRotateCcw } from "@/components/Icons";
 
 interface Position {
   id: string;
@@ -232,7 +233,7 @@ export default function PaperTradingClient() {
             className="px-3 py-1.5 rounded-lg text-xs font-medium text-[var(--text-2)] hover:text-white transition-colors"
             style={{ background: "var(--bg-raised)", border: "1px solid var(--border)" }}
           >
-            {resetting ? "Resetting…" : "↺ Reset"}
+            {resetting ? "Resetting…" : <><IconRotateCcw size={12} className="inline mr-1.5" />Reset</>}
           </button>
           <button
             onClick={runBot}
@@ -240,7 +241,7 @@ export default function PaperTradingClient() {
             className="px-4 py-1.5 rounded-lg text-sm font-semibold text-black transition-all disabled:opacity-40"
             style={{ background: executing ? "var(--text-3)" : "var(--green)" }}
           >
-            {executing ? "Running…" : daysLeft === 0 ? "Experiment Complete" : "▶ Run Bot"}
+            {executing ? "Running…" : daysLeft === 0 ? "Experiment Complete" : <><IconPlay size={12} className="inline mr-1.5" />Run Bot</>}
           </button>
         </div>
       </div>

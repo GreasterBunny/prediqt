@@ -7,6 +7,7 @@ import StockCard from "@/components/StockCard";
 import type { AlignmentStatus } from "@/components/StockCard";
 import Header from "@/components/Header";
 import Link from "next/link";
+import { IconLightning, IconWarning, IconTriangleUp, IconTriangleDown, IconDot, IconArrowRight, IconActivity } from "@/components/Icons";
 
 export const revalidate = 60;
 
@@ -94,16 +95,17 @@ export default async function DashboardPage() {
                   style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.15)" }}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-[var(--red)]">⚠</span>
+                    <IconWarning size={13} className="text-[var(--red)] flex-shrink-0" />
                     <span className="font-semibold text-white">Running on mock data</span>
-                    <span className="text-[var(--text-3)]">— No real price data in database yet.</span>
+                    <span className="text-[var(--text-3)]">No real price data in database yet.</span>
                   </div>
                   <Link
                     href="/pipeline"
-                    className="font-semibold px-3 py-1 rounded-full transition-colors"
+                    className="inline-flex items-center gap-1.5 font-semibold px-3 py-1 rounded-full transition-colors flex-shrink-0"
                     style={{ background: "rgba(239,68,68,0.12)", color: "var(--red)" }}
                   >
-                    Backfill real data →
+                    Backfill real data
+                    <IconArrowRight size={12} />
                   </Link>
                 </div>
               ) : isStale ? (
@@ -112,16 +114,17 @@ export default async function DashboardPage() {
                   style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.15)" }}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-[var(--red)]">⚠</span>
+                    <IconWarning size={13} className="text-[var(--red)] flex-shrink-0" />
                     <span className="font-semibold text-white">Price data is stale</span>
                     <span className="num text-[var(--text-3)]">Last update: {latestPriceDate}</span>
                   </div>
                   <Link
                     href="/pipeline"
-                    className="font-semibold px-3 py-1 rounded-full transition-colors"
+                    className="inline-flex items-center gap-1.5 font-semibold px-3 py-1 rounded-full transition-colors flex-shrink-0"
                     style={{ background: "rgba(239,68,68,0.12)", color: "var(--red)" }}
                   >
-                    Refresh data →
+                    Refresh data
+                    <IconArrowRight size={12} />
                   </Link>
                 </div>
               ) : (
@@ -129,19 +132,18 @@ export default async function DashboardPage() {
                   className="flex flex-wrap items-center gap-3 rounded-2xl px-4 py-3 text-xs"
                   style={{ background: "rgba(34,197,94,0.04)", border: "1px solid rgba(34,197,94,0.12)" }}
                 >
-                  <span className="text-[var(--green)]">●</span>
+                  <IconDot size={7} className="text-[var(--green)]" />
                   <span className="font-semibold text-white">Live data</span>
                   <span className="text-[var(--text-3)]">
                     via {dataSource === "polygon" ? "Polygon.io" : "Yahoo Finance"}
                     {latestPriceDate && ` · Last close ${latestPriceDate}`}
                   </span>
-                  <span className="text-[var(--text-3)]">·</span>
-                  <span className="text-[var(--text-3)]">Cron runs weekdays at 4 PM ET</span>
+                  <span className="text-[var(--text-3)]">· Cron runs weekdays 4 PM ET</span>
                   <Link
                     href="/pipeline"
-                    className="ml-auto text-[var(--text-3)] hover:text-[var(--text-2)] transition-colors"
+                    className="ml-auto inline-flex items-center gap-1 text-[var(--text-3)] hover:text-[var(--text-2)] transition-colors"
                   >
-                    Pipeline →
+                    Pipeline <IconArrowRight size={12} />
                   </Link>
                 </div>
               )}
@@ -164,54 +166,48 @@ export default async function DashboardPage() {
             style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
           >
             <div className="flex flex-wrap items-center gap-3 mb-3">
-              <p className="text-xs font-semibold text-white">Model Alignment Overview</p>
+              <div className="flex items-center gap-2">
+                <IconActivity size={13} className="text-[var(--text-3)]" />
+                <p className="text-xs font-semibold text-white">Model Alignment</p>
+              </div>
               <p className="text-[10px] text-[var(--text-3)]">
-                ⚡ means both the Technical (v1.0) and Momentum (v2.0) models point the same way — a stronger signal
+                Gold cards = both Technical &amp; Momentum models agree — a higher-conviction signal
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
-              {/* Aligned bullish */}
               <div
-                className="flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold"
-                style={{ background: "rgba(34,197,94,0.10)", color: "var(--green)" }}
+                className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold"
+                style={{ background: "var(--gold-dim)", color: "var(--gold)" }}
               >
-                <span>⚡</span>
+                <IconLightning size={11} />
                 <span className="num">{alignedBullish}</span>
                 <span>aligned bullish</span>
               </div>
-
-              {/* Aligned bearish */}
               <div
-                className="flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold"
+                className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold"
                 style={{ background: "rgba(239,68,68,0.10)", color: "var(--red)" }}
               >
-                <span>⚡</span>
+                <IconLightning size={11} />
                 <span className="num">{alignedBearish}</span>
                 <span>aligned bearish</span>
               </div>
-
-              {/* Mixed signals */}
               <div
-                className="flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium"
+                className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium"
                 style={{ background: "var(--bg-raised)", color: "var(--text-2)" }}
               >
-                <span>⚠</span>
+                <IconWarning size={11} />
                 <span className="num">{mixed}</span>
                 <span>mixed signals</span>
               </div>
-
-              {/* Divider */}
               <div className="w-px self-stretch" style={{ background: "var(--border)" }} />
-
-              {/* Classic v1 summary */}
               <div
-                className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium"
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium"
                 style={{ background: "var(--bg-raised)", color: "var(--text-2)" }}
               >
-                <span className="text-[var(--green)]">▲</span>
+                <IconTriangleUp size={9} className="text-[var(--green)]" />
                 <span className="num">{bullish}</span>
                 <span className="text-[var(--text-3)]">/</span>
-                <span className="text-[var(--red)]">▼</span>
+                <IconTriangleDown size={9} className="text-[var(--red)]" />
                 <span className="num">{bearish}</span>
                 <span className="text-[var(--text-3)]">·</span>
                 <span className="num">{avgConf}% avg</span>
@@ -227,7 +223,7 @@ export default async function DashboardPage() {
           </div>
 
           <p className="mt-12 text-center text-xs text-[var(--text-3)]">
-            Prediqt · ⚡ Aligned = both Technical & Momentum models agree · Not financial advice
+            Prediqt · Gold border = both models aligned · Not financial advice
           </p>
         </main>
       </div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { BacktestResult } from "@/services/backtesting";
 import EquityChart from "@/components/EquityChart";
+import { IconLineChart, IconArrowUp, IconArrowDown, IconTriangleUp, IconTriangleDown } from "@/components/Icons";
 
 const TICKERS = ["AAPL", "MSFT", "NVDA", "GOOG", "AMZN", "META"];
 
@@ -99,7 +100,11 @@ export default function BacktestingClient() {
       {/* Empty state */}
       {!result && !loading && (
         <div className="text-center py-20">
-          <div className="text-4xl mb-3">📈</div>
+          <div className="flex justify-center mb-4">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl" style={{ background: "var(--bg-raised)" }}>
+            <IconLineChart size={24} className="text-[var(--text-3)]" />
+          </span>
+        </div>
           <p className="text-[var(--text-2)] text-sm">Select a stock and run the backtest to see results.</p>
           <p className="text-[var(--text-3)] text-xs mt-1">
             Simulates the prediction model on historical price data with walk-forward validation.
@@ -128,7 +133,7 @@ export default function BacktestingClient() {
             <div className="flex flex-wrap items-center justify-between gap-3 mb-1">
               <div>
                 <p className="text-xs text-[var(--text-3)]">
-                  {result.startDate} → {result.endDate}
+                  {result.startDate} — {result.endDate}
                 </p>
                 <h2 className="text-lg font-bold text-white mt-0.5">
                   {result.ticker} Backtest Results
@@ -237,13 +242,14 @@ export default function BacktestingClient() {
                     <tr key={i} className="border-b border-[var(--border)] last:border-0">
                       <td className="py-2 pr-4 text-[var(--text-2)]">{trade.date}</td>
                       <td className="py-2 pr-4">
-                        <span className={`inline-flex items-center gap-1 font-medium ${trade.direction === "up" ? "text-[var(--green)]" : "text-[var(--red)]"}`}>
-                          {trade.direction === "up" ? "↑" : "↓"} {trade.direction === "up" ? "Long" : "Short"}
+                        <span className={`inline-flex items-center gap-1.5 font-medium ${trade.direction === "up" ? "text-[var(--green)]" : "text-[var(--red)]"}`}>
+                          {trade.direction === "up" ? <IconArrowUp size={11} /> : <IconArrowDown size={11} />}
+                          {trade.direction === "up" ? "Long" : "Short"}
                         </span>
                       </td>
                       <td className="py-2 pr-4">
                         <span className={trade.actual === "up" ? "text-[var(--green)]" : "text-[var(--red)]"}>
-                          {trade.actual === "up" ? "▲" : "▼"}
+                          {trade.actual === "up" ? <IconTriangleUp size={9} /> : <IconTriangleDown size={9} />}
                         </span>
                       </td>
                       <td className="num py-2 pr-4 text-[var(--text-2)]">${trade.entryPrice.toFixed(2)}</td>

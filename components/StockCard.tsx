@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { StockWithData } from "@/types";
 import Sparkline from "./Sparkline";
+import { IconTriangleUp, IconTriangleDown, IconLightning, IconWarning } from "./Icons";
 
 export interface AlignmentStatus {
   aligned: boolean;
@@ -25,7 +26,6 @@ export default function StockCard({ data, alignment }: StockCardProps) {
   const isUp = prediction.prediction === "up";
 
   const sparkPrices = priceHistory.slice(-30).map((p) => p.close);
-
   const isAligned = alignment?.aligned ?? false;
   const alignUp = alignment?.direction === "up";
 
@@ -35,39 +35,29 @@ export default function StockCard({ data, alignment }: StockCardProps) {
         className="card cursor-pointer p-5 hover:bg-[var(--bg-raised)] relative overflow-hidden"
         style={{
           background: "var(--bg-card)",
-          // Subtle left-border glow when aligned
           borderLeft: isAligned
-            ? `2px solid ${alignUp ? "var(--green)" : "var(--red)"}`
+            ? "2px solid var(--gold)"
             : undefined,
         }}
       >
-        {/* Alignment banner — shown at top when both models agree */}
+        {/* Alignment banner — gold when both models agree */}
         {isAligned && (
           <div
-            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 mb-3 text-[10px] font-semibold"
-            style={{
-              background: alignUp
-                ? "rgba(34,197,94,0.08)"
-                : "rgba(239,68,68,0.08)",
-              color: alignUp ? "var(--green)" : "var(--red)",
-            }}
+            className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 mb-3 text-[10px] font-semibold"
+            style={{ background: "var(--gold-dim)", color: "var(--gold)" }}
           >
-            <span>⚡</span>
+            <IconLightning size={11} />
             <span>Both models {alignUp ? "bullish" : "bearish"}</span>
             <span
-              className="ml-auto rounded-full px-1.5 py-0.5 text-[9px]"
-              style={{
-                background: alignUp
-                  ? "rgba(34,197,94,0.15)"
-                  : "rgba(239,68,68,0.15)",
-              }}
+              className="ml-auto num rounded-full px-1.5 py-0.5 text-[9px]"
+              style={{ background: "var(--gold-border)", color: "var(--gold)" }}
             >
-              {Math.round((alignment?.avgConfidence ?? 0) * 100)}% avg conf
+              {Math.round((alignment?.avgConfidence ?? 0) * 100)}% avg
             </span>
           </div>
         )}
 
-        {/* Top row: ticker + prediction badge */}
+        {/* Top row */}
         <div className="flex items-start justify-between mb-3">
           <div>
             <p className="text-[11px] font-medium text-[var(--text-3)] mb-0.5 tracking-wide">
@@ -77,19 +67,22 @@ export default function StockCard({ data, alignment }: StockCardProps) {
           </div>
           <div className="flex flex-col items-end gap-1.5 mt-0.5">
             <span
-              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
                 isUp
                   ? "bg-[var(--green-dim)] text-[var(--green)]"
                   : "bg-[var(--red-dim)] text-[var(--red)]"
               }`}
             >
-              {isUp ? "▲" : "▼"} {isUp ? "Buy" : "Sell"}
+              {isUp ? <IconTriangleUp size={8} /> : <IconTriangleDown size={8} />}
+              {isUp ? "Buy" : "Sell"}
             </span>
-            {/* Mixed signal badge when models disagree */}
             {!isAligned && alignment && (
-              <span className="text-[9px] text-[var(--text-3)] px-1.5 py-0.5 rounded-full"
-                style={{ background: "var(--bg-raised)" }}>
-                ⚠ Mixed signals
+              <span
+                className="inline-flex items-center gap-1 text-[9px] font-medium px-1.5 py-0.5 rounded-full"
+                style={{ background: "var(--bg-raised)", color: "var(--text-3)" }}
+              >
+                <IconWarning size={9} />
+                Mixed signals
               </span>
             )}
           </div>
@@ -100,7 +93,7 @@ export default function StockCard({ data, alignment }: StockCardProps) {
           <Sparkline prices={sparkPrices} positive={isPositive} height={44} />
         </div>
 
-        {/* Bottom row: price + meta */}
+        {/* Bottom row */}
         <div className="flex items-end justify-between">
           <div>
             <p className="num text-2xl font-bold text-white leading-none">

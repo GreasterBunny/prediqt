@@ -1,4 +1,5 @@
 import type { Prediction } from "@/types";
+import { IconArrowUp, IconArrowDown, IconCheck, IconX } from "./Icons";
 
 interface PredictionHistoryTableProps {
   history: Array<Prediction & { actual?: "up" | "down" }>;
@@ -16,12 +17,12 @@ export default function PredictionHistoryTable({ history }: PredictionHistoryTab
   return (
     <div className="card p-5" style={{ background: "var(--bg-card)" }}>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
-        <p className="text-[11px] font-medium text-[var(--text-3)] tracking-wide">
+        <p className="text-[11px] font-medium text-[var(--text-3)] tracking-wide uppercase">
           Prediction History
         </p>
         <div className="flex items-center gap-3">
           {recentOutcomes.length > 0 && (
-            <div className="flex items-center gap-1" title="Recent outcomes (oldest → newest)">
+            <div className="flex items-center gap-1" title="Recent outcomes (oldest to newest)">
               {recentOutcomes.map((p, i) => (
                 <span
                   key={i}
@@ -75,25 +76,31 @@ export default function PredictionHistoryTable({ history }: PredictionHistoryTab
                     })}
                   </td>
                   <td className="py-3">
-                    <span className={`text-xs font-semibold ${isUp ? "text-[var(--green)]" : "text-[var(--red)]"}`}>
-                      {isUp ? "▲ Up" : "▼ Down"}
+                    <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${isUp ? "text-[var(--green)]" : "text-[var(--red)]"}`}>
+                      {isUp
+                        ? <IconArrowUp size={12} />
+                        : <IconArrowDown size={12} />}
+                      {isUp ? "Up" : "Down"}
                     </span>
                   </td>
                   <td className="py-3">
                     <div className="flex items-center gap-2">
                       <span className="num text-xs text-white">{pct}%</span>
-                      <div className="h-1 w-10 rounded-full bg-[var(--bg-raised)]">
+                      <div className="h-1 w-10 rounded-full" style={{ background: "var(--bg-raised)" }}>
                         <div
-                          className="h-full rounded-full bg-[var(--text-3)]"
-                          style={{ width: `${pct}%` }}
+                          className="h-full rounded-full"
+                          style={{ width: `${pct}%`, background: "var(--text-3)" }}
                         />
                       </div>
                     </div>
                   </td>
                   <td className="py-3">
                     {hasActual ? (
-                      <span className={`text-xs font-medium ${p.actual === "up" ? "text-[var(--green)]" : "text-[var(--red)]"}`}>
-                        {p.actual === "up" ? "▲ Up" : "▼ Down"}
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${p.actual === "up" ? "text-[var(--green)]" : "text-[var(--red)]"}`}>
+                        {p.actual === "up"
+                          ? <IconArrowUp size={12} />
+                          : <IconArrowDown size={12} />}
+                        {p.actual === "up" ? "Up" : "Down"}
                       </span>
                     ) : (
                       <span className="text-xs text-[var(--text-3)]">Pending</span>
@@ -102,13 +109,16 @@ export default function PredictionHistoryTable({ history }: PredictionHistoryTab
                   <td className="py-3 text-right">
                     {hasActual ? (
                       <span
-                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
                           isCorrect
                             ? "bg-[var(--green-dim)] text-[var(--green)]"
                             : "bg-[var(--red-dim)] text-[var(--red)]"
                         }`}
                       >
-                        {isCorrect ? "✓ Correct" : "✗ Missed"}
+                        {isCorrect
+                          ? <IconCheck size={10} />
+                          : <IconX size={10} />}
+                        {isCorrect ? "Correct" : "Missed"}
                       </span>
                     ) : (
                       <span className="text-[var(--text-3)] text-xs">—</span>

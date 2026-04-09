@@ -3,20 +3,11 @@
 import { useState } from "react";
 import type { PredictionResult, Signal } from "@/services/predictions";
 import { getSignalInfo } from "@/lib/signal-descriptions";
+import { IconInfo, IconArrowUp, IconArrowDown, IconLightning, IconWarning } from "./Icons";
 
 interface ModelComparisonProps {
   v1: PredictionResult;
   v2: PredictionResult;
-}
-
-function InfoIcon({ size = 12 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 13 13" fill="none">
-      <circle cx="6.5" cy="6.5" r="6" stroke="currentColor" strokeWidth="1"/>
-      <path d="M6.5 6v3.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-      <circle cx="6.5" cy="3.75" r="0.75" fill="currentColor"/>
-    </svg>
-  );
 }
 
 function SignalBar({ signal }: { signal: Signal }) {
@@ -39,23 +30,22 @@ function SignalBar({ signal }: { signal: Signal }) {
               className="text-[var(--text-3)] hover:text-[var(--text-2)] transition-colors flex-shrink-0"
               aria-label="Explain"
             >
-              <InfoIcon />
+              <IconInfo size={12} />
             </button>
           )}
         </div>
-        <span className={`flex-shrink-0 font-medium ${textClass}`}>
-          {isNeutral ? "—" : isUp ? "↑" : "↓"} {pct}%
+        <span className={`flex-shrink-0 font-medium flex items-center gap-1 ${textClass}`}>
+          {!isNeutral && (isUp
+            ? <IconArrowUp size={10} />
+            : <IconArrowDown size={10} />)}
+          <span className="num">{pct}%</span>
         </span>
       </div>
 
       <div className="h-1.5 rounded-full" style={{ background: "var(--bg-hover)" }}>
-        <div
-          className="h-full rounded-full"
-          style={{ width: `${pct}%`, background: color, opacity: 0.85 }}
-        />
+        <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color, opacity: 0.85 }} />
       </div>
 
-      {/* Inline explanation */}
       {open && info && (
         <div
           className="rounded-lg p-2.5 mt-1 text-[10px] text-[var(--text-2)] leading-relaxed space-y-1.5"
@@ -70,11 +60,7 @@ function SignalBar({ signal }: { signal: Signal }) {
   );
 }
 
-function ModelPanel({
-  result,
-  label,
-  description,
-}: {
+function ModelPanel({ result, label, description }: {
   result: PredictionResult;
   label: string;
   description: string;
@@ -84,22 +70,18 @@ function ModelPanel({
 
   return (
     <div className="rounded-xl p-5 flex flex-col gap-4" style={{ background: "var(--bg-raised)" }}>
-      {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="text-xs font-semibold text-white">{label}</p>
           <p className="text-[10px] text-[var(--text-3)] mt-0.5">{description}</p>
         </div>
-        <span
-          className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${
-            isUp ? "bg-[var(--green-dim)] text-[var(--green)]" : "bg-[var(--red-dim)] text-[var(--red)]"
-          }`}
-        >
+        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${
+          isUp ? "bg-[var(--green-dim)] text-[var(--green)]" : "bg-[var(--red-dim)] text-[var(--red)]"
+        }`}>
           {isUp ? "BULLISH" : "BEARISH"}
         </span>
       </div>
 
-      {/* Confidence */}
       <div className="text-center py-1">
         <p className={`num text-4xl font-bold ${isUp ? "text-[var(--green)]" : "text-[var(--red)]"}`}>
           {confPct}%
@@ -108,20 +90,15 @@ function ModelPanel({
       </div>
 
       <div className="h-1.5 rounded-full" style={{ background: "var(--bg-hover)" }}>
-        <div
-          className="h-full rounded-full"
-          style={{ width: `${confPct}%`, background: isUp ? "var(--green)" : "var(--red)" }}
-        />
+        <div className="h-full rounded-full"
+          style={{ width: `${confPct}%`, background: isUp ? "var(--green)" : "var(--red)" }} />
       </div>
 
-      {/* Signals with descriptions */}
       <div className="space-y-3 pt-1">
         <p className="text-[10px] text-[var(--text-3)] uppercase tracking-wide font-medium">
-          Signals <span className="normal-case text-[var(--text-3)]">· tap ⓘ to explain</span>
+          Signals <span className="normal-case">· tap <IconInfo size={10} className="inline" /> to explain</span>
         </p>
-        {result.signals.map((s) => (
-          <SignalBar key={s.name} signal={s} />
-        ))}
+        {result.signals.map((s) => <SignalBar key={s.name} signal={s} />)}
       </div>
 
       <p className="text-[10px] text-[var(--text-3)] border-t border-[var(--border)] pt-3">
@@ -138,7 +115,6 @@ export default function ModelComparison({ v1, v2 }: ModelComparisonProps) {
 
   return (
     <div className="card p-5" style={{ background: "var(--bg-card)" }}>
-      {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <div>
           <p className="text-[11px] font-medium text-[var(--text-3)] tracking-wide uppercase">
@@ -149,59 +125,45 @@ export default function ModelComparison({ v1, v2 }: ModelComparisonProps) {
           </p>
         </div>
         <span
-          className={`text-[10px] font-semibold px-2.5 py-1 rounded-full ${
-            agree
-              ? isUp
-                ? "bg-[var(--green-dim)] text-[var(--green)]"
-                : "bg-[var(--red-dim)] text-[var(--red)]"
-              : "bg-[var(--bg-raised)] text-[var(--text-2)]"
-          }`}
+          className="inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-1 rounded-full flex-shrink-0"
+          style={agree ? {
+            background: "var(--gold-dim)",
+            color: "var(--gold)",
+          } : {
+            background: "var(--bg-raised)",
+            color: "var(--text-2)",
+          }}
         >
           {agree
-            ? `⚡ Aligned ${isUp ? "Bullish" : "Bearish"} · ${Math.round(combinedConf * 100)}% avg`
-            : "⚠ Mixed Signals"}
+            ? <><IconLightning size={10} /> Aligned {isUp ? "Bullish" : "Bearish"} · {Math.round(combinedConf * 100)}% avg</>
+            : <><IconWarning size={10} /> Mixed Signals</>}
         </span>
       </div>
 
-      {/* What alignment means */}
       <div
         className="mb-5 mt-3 rounded-xl p-3 text-[11px] text-[var(--text-2)] leading-relaxed"
         style={{ background: "var(--bg-raised)" }}
       >
         {agree
-          ? `Both the Technical model (v1.0) and Momentum model (v2.0) are predicting the stock moves ${
-              isUp ? "up" : "down"
-            }. When two independent methods reach the same conclusion, the signal is generally considered stronger and more reliable.`
-          : "The two models are pointing in opposite directions, which signals uncertainty. The Technical model sees different patterns than the Momentum model. Many traders wait for alignment before acting."}
+          ? `Both the Technical model (v1.0) and Momentum model (v2.0) predict the stock moves ${isUp ? "up" : "down"}. When two independent methods agree, the signal is generally considered stronger.`
+          : "The two models point in opposite directions. Many traders wait for alignment before acting."}
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <ModelPanel
-          result={v1}
-          label="Model v1.0 — Technical"
-          description="Moving averages, RSI, MACD, price momentum"
-        />
-        <ModelPanel
-          result={v2}
-          label="Model v2.0 — Momentum"
-          description="Rate of change, Bollinger bands, volume, trend"
-        />
+        <ModelPanel result={v1} label="Model v1.0 — Technical" description="Moving averages, RSI, MACD, price momentum" />
+        <ModelPanel result={v2} label="Model v2.0 — Momentum" description="Rate of change, Bollinger bands, volume, trend" />
       </div>
 
       {!agree && (
         <div
           className="mt-3 p-3 rounded-xl text-xs text-[var(--text-2)]"
-          style={{ background: "var(--bg-raised)", borderLeft: "2px solid rgba(255,180,0,0.3)" }}
+          style={{ background: "var(--bg-raised)", borderLeft: "2px solid rgba(201,168,76,0.3)" }}
         >
           <strong className="text-white">Consider waiting</strong> — v1.0 predicts{" "}
-          <span className={v1.prediction === "up" ? "text-[var(--green)]" : "text-[var(--red)]"}>
-            {v1.prediction}
-          </span>{" "}
+          <span className={v1.prediction === "up" ? "text-[var(--green)]" : "text-[var(--red)]"}>{v1.prediction}</span>{" "}
           while v2.0 predicts{" "}
-          <span className={v2.prediction === "up" ? "text-[var(--green)]" : "text-[var(--red)]"}>
-            {v2.prediction}
-          </span>
-          . Alignment between models historically improves prediction reliability.
+          <span className={v2.prediction === "up" ? "text-[var(--green)]" : "text-[var(--red)]"}>{v2.prediction}</span>.
+          Alignment historically improves prediction reliability.
         </div>
       )}
     </div>
