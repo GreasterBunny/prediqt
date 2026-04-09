@@ -1,8 +1,6 @@
 {
   "crons": [
-    {
-      "path": "/api/cron/daily",
-      "schedule": "0 21 * * 1-5"
-    }
+    { "path": "/api/cron/daily", "schedule": "0 21 * * 1-5" },
+    { "path": "/api/paper-trading/tick", "schedule": "*/5 * * * *" }
   ]
 }
